@@ -1,0 +1,4 @@
+---
+- hosts: wildfly
+  roles:
+     - wildfly

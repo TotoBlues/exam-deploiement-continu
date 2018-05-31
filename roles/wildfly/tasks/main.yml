@@ -1,0 +1,76 @@
+- name: installation de Git
+  package: name=git state=present
+
+- name: installation du jdk8
+  package: name=openjdk-8-jdk-headless state=present
+
+- name: creation de l'utilisateur wildfly
+  user:
+    name: wildfly
+    system: yes
+
+#- name: create /opt/wildfly
+#  file:
+#    state: directory
+#    path: '{{wildfly_opt}}'
+#    owner: wildfly
+#    group: wildfly
+#    mode: 0755
+
+- name: create /etc/wildfly
+  file:
+    path: '{{wildfly_etc}}'
+    state: directory
+    owner: wildfly
+    group: wildfly
+    mode: 0755
+
+- name: untar wildfly tarball
+  unarchive:
+    src: '{{wildfly_url}}'
+    dest: /opt/
+    owner: wildfly
+    remote_src : yes
+    creates: '{{wildfly_path}}'
+
+- name: copy into wildfly
+  command: mv '{{wildfly_path}}' '{{wildfly_opt}}'
+
+- name: create /opt/wildfly/bin
+  file:
+    path: '{{wildfly_opt}}/bin'
+    state: directory
+    owner: wildfly
+    group: wildfly
+    mode: 0755
+
+- name: copy conf from wildfly_opt to wildfly
+  copy:
+    src: '{{wildfly_conf}}'
+    dest: '{{wildfly_etc}}'
+    owner: wildfly
+    group: wildfly
+    mode: 0755
+    remote_src: yes
+
+- name: move service in system
+  copy:
+    src: '{{wildfly_service}}'
+    dest: '/etc/systemd/system/'
+    remote_src: yes
+
+- name: move shell script into /opt/wildfly/bin
+  copy:
+    src: '{{wildfly_launch}}'
+    dest: '/opt/wildfly/bin'
+    owner: wildfly
+    group: wildfly
+    mode: 0755
+    remote_src: yes
+
+- name: start and enable the wildfly service
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: wildfly
+    enabled: yes

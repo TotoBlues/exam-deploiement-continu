@@ -1,0 +1,5 @@
+lxc exec ubuntu -- apt update
+lxc exec ubuntu -- apt -y upgrade
+lxc exec ubuntu -- apt -y install openssh-server sudo python
+lxc exec ubuntu -- adduser $USER
+lxc exec ubuntu -- usermod -a -G sudo $USER
